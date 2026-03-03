@@ -1,10 +1,10 @@
 from groq import Groq
 from search import load_retriever, search, lookup, is_direct_name, is_lookup
 from apikey import API_KEY
-import re  # ✅ THÊM
+import re
 
 GROQ_API_KEY = API_KEY
-GROQ_MODEL   = "meta-llama/llama-4-scout-17b-16e-instruct"
+GROQ_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
 llm = Groq(api_key=GROQ_API_KEY)
 
@@ -25,49 +25,50 @@ NGUYÊN TẮC BẮT BUỘC
 4. Nếu không tìm thấy máy phù hợp → xin lỗi và yêu cầu khách mô tả lại nhu cầu.
 5. Không tự ý thay thế sản phẩm.
 6. TUYỆT ĐỐI KHÔNG giải thích quá trình xử lý, không nói "dựa trên dữ liệu trước đó", 
-   không nói "tuy nhiên dữ liệu không được cung cấp", không mô tả bạn đang làm gì.
-   Chỉ trả lời trực tiếp vào nội dung khách hỏi
+không nói "tuy nhiên dữ liệu không được cung cấp", không mô tả bạn đang làm gì.
+Chỉ trả lời trực tiếp vào nội dung khách hỏi
 
 =====================
 QUY TẮC TRẢ LỜI THEO LOẠI CÂU HỎI, QUAN TRỌNG: PHẢI TUÂN THỦ NGHIÊM NGẶT
 =====================
 
-    A. Nếu là tư vấn chung (ví dụ: "tư vấn laptop gaming", "laptop 20 triệu", "học lập trình nên mua máy nào"):
-    - Với mỗi máy chỉ trình bày:
-    • Tên máy
-    • Giá
-    - TUYỆT ĐỐI không liệt kê CPU, RAM, GPU, Storage nếu khách không yêu cầu.
+A. Nếu là tư vấn chung (ví dụ: "tư vấn laptop gaming", "laptop 20 triệu", "học lập trình nên mua máy nào"):
+- Với mỗi máy chỉ trình bày:
+• Tên máy
+• Giá
+- TUYỆT ĐỐI không liệt kê CPU, RAM, GPU, Storage nếu khách không yêu cầu.
 
-    B. Nếu khách hỏi về một máy cụ thể:
-    - Chỉ trả lời về đúng máy đó.
-    - Có thể trình bày đầy đủ cấu hình.
+B. Nếu khách hỏi về một máy cụ thể:
+- Chỉ trả lời về đúng máy đó.
+- Có thể trình bày đầy đủ cấu hình.
 
-    C. Nếu khách yêu cầu so sánh:
-    - nếu khách yêu cầu so sánh 1 với 2 (có thể thay bằng các số khác), nghĩa là họ đang dựa vào kết quả trả từ kết quả của bạn vừa trả 
-            vd: bạn trả ra 
-            1. Laptop Lenovo Gaming LOQ 15ARP9 - 83JC00LVVN – 22,690,000đ
-            2. Laptop Lenovo Gaming LOQ 15AHP10 - 83JG0047VN – 31,690,000đ
-            3. Laptop Lenovo Gaming Legion 5 15AHP10 - 83M0002XVN – 36,690,000đ
-            mà khách yêu cầu so sánh 1 với 2 nghĩa là họ đang muốn so sánh 2 máy Lenovo LOQ 15ARP9 và Lenovo LOQ 15AHP10, tương tự có thể là 1 với 3, hoặc 2 với 3... hoặc cả 3 máy với nhau.
+C. Nếu khách yêu cầu so sánh:
+- nếu khách yêu cầu so sánh 1 với 2 (có thể thay bằng các số khác), nghĩa là họ đang dựa vào kết quả trả từ kết quả của bạn vừa trả 
+vd: bạn trả ra 
+1. Laptop Lenovo Gaming LOQ 15ARP9 - 83JC00LVVN – 22,690,000đ
+2. Laptop Lenovo Gaming LOQ 15AHP10 - 83JG0047VN – 31,690,000đ
+3. Laptop Lenovo Gaming Legion 5 15AHP10 - 83M0002XVN – 36,690,000đ
+mà khách yêu cầu so sánh 1 với 2 nghĩa là họ đang muốn so sánh 2 máy Lenovo LOQ 15ARP9 và Lenovo LOQ 15AHP10, tương tự có thể là 1 với 3, hoặc 2 với 3... hoặc cả 3 máy với nhau.
 
-    - tương tự nếu khách muốn chi tiết máy số 1 thì nghĩa là chi tiết máy Lenovo LOQ 15ARP9, nếu máy số 2 thì chi tiết máy Lenovo LOQ 15AHP10, nếu máy số 3 thì chi tiết máy Lenovo Legion 5 15AHP10...
-    - Nếu không chỉ định → so sánh các máy cùng phân khúc giá hoặc cấu hình trong dữ liệu.
-    - KHI SO SÁNH, PHẢI NÊU RÕ ƯU NHƯỢC ĐIỂM CỦA TỪNG MÁY DỰA TRÊN CẤU HÌNH VÀ GIÁ CẢ. 
+- tương tự nếu khách muốn chi tiết máy số 1 thì nghĩa là chi tiết máy Lenovo LOQ 15ARP9, nếu máy số 2 thì chi tiết máy Lenovo LOQ 15AHP10, nếu máy số 3 thì chi tiết máy Lenovo Legion 5 15AHP10...
+- Nếu không chỉ định → so sánh các máy cùng phân khúc giá hoặc cấu hình trong dữ liệu.
+- KHI SO SÁNH, PHẢI NÊU RÕ ƯU NHƯỢC ĐIỂM CỦA TỪNG MÁY DỰA TRÊN CẤU HÌNH VÀ GIÁ CẢ. 
 
-    D. Nếu khách hỏi chi tiết cấu hình:
-    - Trình bày đầy đủ thông tin cấu hình từ dữ liệu.
+D. Nếu khách hỏi chi tiết cấu hình:
+- Trình bày đầy đủ thông tin cấu hình từ dữ liệu.
 
 """
 
-
-def format_search_context(results: list[dict]) -> str:
+def format_search_context(results: list[dict], indexed_results: list[tuple] = None) -> str:
     if not results:
         return "Không tìm thấy laptop phù hợp."
 
     lines = []
-    for r in results:
+    items = indexed_results if indexed_results else [(None, r) for r in results]
+    for idx, r in items:
+        prefix = f"Máy {idx}:" if idx is not None else "-"
         lines.append(
-            f"- {r['name']}\n"
+            f"{prefix} {r['name']}\n"
             f"  CPU: {r['cpu']} | RAM: {r['ram']}GB | Storage: {r['storage']}GB\n"
             f"  GPU: {r['gpu']}\n"
             f"  Màn hình: {r['screen_size']} inch | {r['screen_resolution']} | {r['screen_panel']}\n"
@@ -98,7 +99,7 @@ def ask_llm(user_query: str, context: str, history: list) -> str:
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
 
     for h in history[-3:]:
-        messages.append({"role": "user",      "content": h["user"]})
+        messages.append({"role": "user", "content": h["user"]})
         messages.append({"role": "assistant", "content": h["assistant"]})
 
     messages.append({
@@ -110,8 +111,8 @@ def ask_llm(user_query: str, context: str, history: list) -> str:
     })
 
     response = llm.chat.completions.create(
-        model    = GROQ_MODEL,
-        messages = messages,
+        model=GROQ_MODEL,
+        messages=messages,
     )
     return response.choices[0].message.content.strip()
 
@@ -119,7 +120,6 @@ def ask_llm(user_query: str, context: str, history: list) -> str:
 def extract_indices(query: str) -> list[int]:
     q = query.lower()
 
-    # ✅ Mở rộng keyword nhận diện tham chiếu số thứ tự
     ref_keywords = r'(?:máy|số|lap|laptop|cái|sản phẩm|sp)'
     matches = re.findall(rf'{ref_keywords}\s*([1-9][0-9]?)', q)
     if matches:
@@ -134,11 +134,11 @@ def extract_indices(query: str) -> list[int]:
 
 if __name__ == "__main__":
     model, collection = load_retriever()
-    history          = []
-    session_products = {}  
+    history = []
+    session_products = {}
 
     print("=" * 60)
-    print("TƯ VẤN LAPTOP AI  |  'exit' để thoát")
+    print("TƯ VẤN LAPTOP AI | 'exit' để thoát")
     print("=" * 60)
 
     while True:
@@ -150,25 +150,30 @@ if __name__ == "__main__":
 
         indices = extract_indices(query)
 
-    
         if indices and session_products:
-            valid = [session_products[i] for i in indices if i in session_products]
-            if not valid:
+            valid_pairs = [(i, session_products[i]) for i in indices if i in session_products]
+            if not valid_pairs:
                 context = "Không tìm thấy máy theo số thứ tự đó trong danh sách vừa tìm."
-            elif len(valid) == 1:
-                context = format_lookup_context(valid[0])  
+            elif len(valid_pairs) == 1:
+                idx, r = valid_pairs[0]
+                context = f"Máy {idx}:\n" + format_lookup_context(r)
             else:
-                context = format_search_context(valid)      
-
+                context = format_search_context(
+                    [r for _, r in valid_pairs],
+                    indexed_results=valid_pairs
+                )
 
         elif is_direct_name(query) or is_lookup(query):
-            result  = lookup(query, model, collection)
+            result = lookup(query, model, collection)
             context = format_lookup_context(result)
 
         else:
             results, _ = search(query, model, collection, top_k=10)
-            context    = format_search_context(results)
-            session_products = {i + 1: r for i, r in enumerate(results)}  
+            session_products = {i + 1: r for i, r in enumerate(results)}
+            context = format_search_context(
+                results,
+                indexed_results=[(i + 1, r) for i, r in enumerate(results)]
+            )
 
         answer = ask_llm(query, context, history)
         print(f"\n{answer}\n")
