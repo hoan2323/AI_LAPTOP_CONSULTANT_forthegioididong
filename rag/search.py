@@ -294,30 +294,30 @@ if __name__ == "__main__":
     print("=" * 60)
 
     while True:
-        query = input("\n💬 Nhập câu hỏi: ").strip()
+        query = input("\nNhập câu hỏi: ").strip()
         if query.lower() == "exit":
-            print("Tạm biệt! 👋")
+            print("Tạm biệt")
             break
         if not query:
             continue
 
         if is_direct_name(query) or is_lookup(query):
-            print("\n📋 Chế độ: TRA CỨU")
+            print("\nChế độ: TRA CỨU")
             result = lookup(query, model, collection)
             if result:
                 print_lookup_card(result)
             else:
-                print("  ❌ Không tìm thấy máy phù hợp hoặc câu hỏi không liên quan đến laptop.")
+                print("Không tìm thấy máy phù hợp hoặc câu hỏi không liên quan đến laptop.")
 
         else:
             results, used_filters = search(query, model, collection, top_k=5)
-            mode = "🟠 Hybrid" if used_filters else "🔵 Semantic"
+            mode = "Hybrid" if used_filters else "🔵 Semantic"
             print(f"\n{mode}  |  Filters: {used_filters or 'none'}")
             print("=" * 60)
 
             if not results:
-                print("  ❌ Không tìm thấy kết quả phù hợp.")
-                print("  💡 Thử hỏi: 'laptop gaming dưới 25 triệu' hoặc 'cấu hình MacBook Air M4'")
+                print("Không tìm thấy kết quả phù hợp.")
+                print("Thử hỏi: 'laptop gaming dưới 25 triệu' hoặc 'cấu hình MacBook Air M4'")
                 continue
 
             for r in results:

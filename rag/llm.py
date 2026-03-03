@@ -81,11 +81,11 @@ if __name__ == "__main__":
     history = []
 
     print("=" * 60)
-    print("   🤖 TƯ VẤN LAPTOP AI  |  'exit' để thoát")
+    print("TƯ VẤN LAPTOP AI  |  'exit' để thoát")
     print("=" * 60)
 
     while True:
-        query = input("💬 Bạn: ").strip()
+        query = input("Bạn: ").strip()
         if query.lower() == "exit":
             break
         if not query:
@@ -99,6 +99,6 @@ if __name__ == "__main__":
             context    = format_search_context(results)
 
         answer = ask_llm(query, context, history)
-        print(f"\n🤖 {answer}\n")
+        print(f"\n{answer}\n")
 
         history.append({"user": query, "assistant": answer})
