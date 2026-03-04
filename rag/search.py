@@ -3,11 +3,13 @@ import chromadb
 from difflib import SequenceMatcher
 from sentence_transformers import SentenceTransformer
 
+
 CHROMA_DIR           = r"chroma_db"
 COLLECTION           = "laptops"
 MODEL_NAME           = "intfloat/multilingual-e5-large"
 SIMILARITY_THRESHOLD = 0.75
 LOOKUP_THRESHOLD     = 0.6
+
 
 LOOKUP_KEYWORDS = [
     "thông tin", "tra cứu", "cho tôi biết", "cho mình biết",
@@ -139,7 +141,6 @@ def parse_intent(query: str) -> dict:
     return filters
 
 
-
 def build_where_filter(
     max_price  : float = None,
     min_price  : float = None,
@@ -149,12 +150,12 @@ def build_where_filter(
     brand      : str   = None,
 ) -> dict | None:
     filters = []
-    if max_price  : filters.append({"price"   : {"$lte": max_price}})
-    if min_price  : filters.append({"price"   : {"$gte": min_price}})
-    if min_ram    : filters.append({"ram"     : {"$gte": min_ram}})
-    if min_storage: filters.append({"storage" : {"$gte": min_storage}})
-    if gpu_type   : filters.append({"gpu_type": {"$eq" : gpu_type}})
-    if brand      : filters.append({"brand"   : {"$eq" : brand}})
+    if max_price   is not None: filters.append({"price"   : {"$lte": max_price}})
+    if min_price   is not None: filters.append({"price"   : {"$gte": min_price}})
+    if min_ram     is not None: filters.append({"ram"     : {"$gte": min_ram}})
+    if min_storage is not None: filters.append({"storage" : {"$gte": min_storage}})
+    if gpu_type               : filters.append({"gpu_type": {"$eq" : gpu_type}})
+    if brand                  : filters.append({"brand"   : {"$eq" : brand}})
 
     if   len(filters) == 0: return None
     elif len(filters) == 1: return filters[0]
@@ -199,23 +200,24 @@ def search(
             continue
         meta = results["metadatas"][0][i]
         output.append({
-        "rank"  : i + 1,
-        "name"  : meta["name"],
-        "brand" : meta.get("brand", "Đang cập nhật"), 
-        "cpu"   : meta["cpu"],
-        "ram"   : meta["ram"],
-        "gpu"   : meta["gpu"],
-        "storage"          : meta["storage"],
-        "screen_size"      : meta["screen_size"],
-        "screen_resolution": meta["screen_resolution"],
-        "screen_panel"     : meta["screen_panel"],
-        "battery_wh"       : meta["battery_wh"],
-        "color"            : meta["color"],
-        "price"            : meta["price"],
-        "rating"           : meta["rating"],
-        "similarity"       : similarity,
-        "mo_ta"            : results["documents"][0][i],  
-    })
+            "rank"             : i + 1,
+            "name"             : meta["name"],
+            "brand"            : meta.get("brand", "Đang cập nhật"),
+            "cpu"              : meta["cpu"],
+            "ram"              : meta["ram"],
+            "gpu"              : meta["gpu"],
+            "storage"          : meta["storage"],
+            "screen_size"      : meta["screen_size"],
+            "screen_resolution": meta["screen_resolution"],
+            "screen_panel"     : meta["screen_panel"],
+            "battery_wh"       : meta["battery_wh"],
+            "color"            : meta["color"],
+            "price"            : meta["price"],
+            "rating"           : meta["rating"],
+            "similarity"       : similarity,
+            "review_text"      : meta.get("review_text", "Chưa có phản hồi"),  # ← thêm
+            "mo_ta"            : results["documents"][0][i],
+        })
 
     return output, final_filters
 
@@ -243,29 +245,30 @@ def lookup(
 
     candidates = []
     for i in range(len(results["ids"][0])):
-        sem_score  = round(1 - results["distances"][0][i], 3)
+        sem_score = round(1 - results["distances"][0][i], 3)
         if sem_score < LOOKUP_THRESHOLD:
             continue
         meta        = results["metadatas"][0][i]
         name_score  = name_similarity(query, meta["name"])
         final_score = round(0.4 * sem_score + 0.6 * name_score, 4)
         candidates.append({
-            "name"       : meta["name"],
-            "brand"      : meta["brand"],
-            "cpu"        : meta["cpu"],
-            "ram"        : meta["ram"],
-            "gpu"        : meta["gpu"],
-            "storage"    : meta["storage"],
-            "screen_size": meta["screen_size"],
+            "name"             : meta["name"],
+            "brand"            : meta["brand"],
+            "cpu"              : meta["cpu"],
+            "ram"              : meta["ram"],
+            "gpu"              : meta["gpu"],
+            "storage"          : meta["storage"],
+            "screen_size"      : meta["screen_size"],
             "screen_resolution": meta["screen_resolution"],
             "screen_panel"     : meta["screen_panel"],
-            "battery_wh"      : meta["battery_wh"],
-            "color"           : meta["color"],
-            "price"      : meta["price"],
-            "rating"     : meta["rating"],
-            "similarity" : sem_score,
-            "final_score": final_score,
-            "mo_ta"      : results["documents"][0][i],
+            "battery_wh"       : meta["battery_wh"],
+            "color"            : meta["color"],
+            "price"            : meta["price"],
+            "rating"           : meta["rating"],
+            "similarity"       : sem_score,
+            "final_score"      : final_score,
+            "review_text"      : meta.get("review_text", "Chưa có phản hồi"),  # ← thêm
+            "mo_ta"            : results["documents"][0][i],
         })
 
     if not candidates:
@@ -290,9 +293,10 @@ def print_lookup_card(r: dict):
     print(f"  Màn hình : {r['screen_size']} inch")
     print(f"  Giá      : {r['price']:,.0f} VNĐ")
     print(f"  Rating   : {r['rating']}/5")
-    print(f"  Màn hình : {r['screen_resolution']} | {r['screen_panel']}")
+    print(f"  Độ phân giải: {r['screen_resolution']} | {r['screen_panel']}")
     print(f"  Pin      : {r['battery_wh']} Wh")
     print(f"  Màu sắc  : {r['color']}")
+    print(f"  Review   : {r.get('review_text', 'Chưa có phản hồi')}")
     print(f"\n  Mô tả:\n  {r['mo_ta']}")
     print("=" * 60)
 
@@ -318,17 +322,16 @@ if __name__ == "__main__":
             if result:
                 print_lookup_card(result)
             else:
-                print("Không tìm thấy máy phù hợp hoặc câu hỏi không liên quan đến laptop.")
+                print("Không tìm thấy máy phù hợp.")
 
         else:
             results, used_filters = search(query, model, collection, top_k=10)
-            mode = "Hybrid" if used_filters else "🔵 Semantic"
+            mode = "Hybrid" if used_filters else "Semantic"
             print(f"\n{mode}  |  Filters: {used_filters or 'none'}")
             print("=" * 60)
 
             if not results:
                 print("Không tìm thấy kết quả phù hợp.")
-                print("Thử hỏi: 'laptop gaming dưới 25 triệu' hoặc 'cấu hình MacBook Air M4'")
                 continue
 
             for r in results:
