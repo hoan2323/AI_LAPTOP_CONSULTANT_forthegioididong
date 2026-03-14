@@ -1,10 +1,8 @@
 2.  Problem Definition & Objectives
+   
 2.1 Problem Definition
 In the context of the rapid growth of e-commerce, The Gioi Di Dong is facing significant management challenges in optimizing its online customer consultation process. Currently, most interactions still rely on human resources, leading to limited scalability when traffic spikes. Customer service teams frequently have to handle repetitive queries regarding technical specifications and price segments, causing response delays and reducing overall operational efficiency.
 This challenge is further exacerbated by the limitations of the internal search system, which only operates based on exact keyword matching and fixed filters. The current tool is not flexible enough to process contextual natural language queries — such as searching for a device specialized for programming within a specific budget. The mismatch between user language and the product data structure makes searching difficult. Furthermore, the quality of consultation depends heavily on the knowledge of individual staff members, leading to inconsistent recommendations and the risk of missing the best options within a diverse product catalog.
-
-
-
 
 
 2.2 Project Objectives
